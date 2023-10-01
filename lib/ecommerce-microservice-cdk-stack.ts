@@ -34,5 +34,7 @@ export class EcommerceMicroserviceCdkStack extends Stack {
 			entry: join(__dirname, '/../src/product/index.js'),
 			...nodeJsFunctionProps,
 		});
+
+		productTable.grantReadWriteData(productFunction);
 	}
 }
