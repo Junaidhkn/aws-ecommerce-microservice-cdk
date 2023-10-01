@@ -1,6 +1,10 @@
 import { RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib';
 import { AttributeType, Billing, TableV2 } from 'aws-cdk-lib/aws-dynamodb';
-import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
+import {
+	NodejsFunction,
+	NodejsFunctionProps,
+} from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import { join } from 'path';
 
@@ -15,10 +19,20 @@ export class EcommerceMicroserviceCdkStack extends Stack {
 			billing: Billing.onDemand(),
 		});
 
-		const fn = new Function(this, 'MyFunction', {
+		const nodeJsFunctionProps: NodejsFunctionProps = {
+			bundling: {
+				externalModules: ['aws-sdk'],
+			},
+			environment: {
+				PRIMARY_KEY: 'id',
+				DYNAMODB_TABLE_NAME: productTable.tableName,
+			},
 			runtime: Runtime.NODEJS_18_X,
-			handler: 'index.handler',
-			code: Code.fromAsset(join(__dirname, 'lambda-handler')),
+		};
+
+		const productFunction = new NodejsFunction(this, 'productLambdaFunction', {
+			entry: join(__dirname, '/../src/product/index.js'),
+			...nodeJsFunctionProps,
 		});
 	}
 }
