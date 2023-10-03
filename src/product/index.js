@@ -1,3 +1,5 @@
+import { GetItemCommand } from "@aws-sdk/client-dynamodb";
+import { marshall } from "@aws-sdk/util-dynamodb";
 
 
 exports.handler = async function ( event ) {
@@ -20,4 +22,28 @@ exports.handler = async function ( event ) {
       headers: { "Content-Type": "text/plain" },
       body: `Hello from product ! You have got a hit at ${event.path}/n`
    }
+}
+
+
+const getProduct = async ( productId ) => {
+   console.log( "getProduct", productId )
+   try {
+      const params = {
+         TableName: process.env.DYNAMODB_TABLE_NAME,
+         Key: marshall( {
+            id: productId
+         } ),
+      }
+      const data = await dynamodb.send( new GetItemCommand( params ) )
+      console.log( "Success", data.Item )
+      return { item }
+   } catch ( error ) {
+      console.log( error )
+      throw error
+   }
+
+}
+
+const getAllProducts = async () => {
+
 }
