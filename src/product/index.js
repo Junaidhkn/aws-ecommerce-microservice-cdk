@@ -1,4 +1,4 @@
-import { GetItemCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
+import { GetItemCommand, PutItemCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { ddbClient } from "./DynamodbClient.js";
 
@@ -14,6 +14,11 @@ exports.handler = async function ( event ) {
          } else {
             body = await getAllProducts();
          }
+      case "POST":
+         body = await createProduct( event.body );
+         break;
+      default:
+         throw new Error( `Unsupported method "${event.httpMethod}"` );
    }
 
 
@@ -54,6 +59,21 @@ const getAllProducts = async () => {
       const { Items } = await ddbClient.send( new ScanCommand( params ) );
       console.log( Items )
       return ( Items ) ? Items.map( ( item ) => unmarshall( item ) ) : {};
+   } catch ( error ) {
+      console.log( error )
+      throw error
+   }
+}
+
+const createProduct = async ( product ) => {
+   const params = {
+      TableName: process.env.DYNAMODB_TABLE_NAME,
+      Item: marshall( product )
+   }
+   try {
+      const response = await ddbClient.send( new PutItemCommand( params ) )
+      console.log( "Success", response.Item )
+      return unmarshall( response.Item )
    } catch ( error ) {
       console.log( error )
       throw error
