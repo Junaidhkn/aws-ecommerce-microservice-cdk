@@ -1,6 +1,7 @@
 import { GetItemCommand, PutItemCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { ddbClient } from "./DynamodbClient.js";
+import { v4 as uuid } from 'uuid';
 
 
 exports.handler = async function ( event ) {
@@ -15,7 +16,8 @@ exports.handler = async function ( event ) {
             body = await getAllProducts();
          }
       case "POST":
-         body = await createProduct( event.body );
+         const product = JSON.parse( event.body );
+         body = await createProduct( product );
          break;
       default:
          throw new Error( `Unsupported method "${event.httpMethod}"` );
@@ -66,11 +68,14 @@ const getAllProducts = async () => {
 }
 
 const createProduct = async ( product ) => {
-   const params = {
-      TableName: process.env.DYNAMODB_TABLE_NAME,
-      Item: marshall( product )
-   }
+   console.log( 'Create product', product )
    try {
+      const productId = uuid();
+      product.id = productId;
+      const params = {
+         TableName: process.env.DYNAMODB_TABLE_NAME,
+         Item: marshall( product )
+      }
       const response = await ddbClient.send( new PutItemCommand( params ) )
       console.log( "Success", response.Item )
       return unmarshall( response.Item )
