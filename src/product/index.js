@@ -1,4 +1,4 @@
-import { GetItemCommand, PutItemCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
+import { DeleteItemCommand, GetItemCommand, PutItemCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
 import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
 import { ddbClient } from "./DynamodbClient.js";
 import { v4 as uuid } from 'uuid';
@@ -18,6 +18,9 @@ exports.handler = async function ( event ) {
       case "POST":
          const product = JSON.parse( event.body );
          body = await createProduct( product );
+         break;
+      case "DELETE":
+         body = await deleteProduct( event.pathParameters.id );
          break;
       default:
          throw new Error( `Unsupported method "${event.httpMethod}"` );
@@ -66,7 +69,7 @@ const getAllProducts = async () => {
       throw error
    }
 }
-
+// If there is an error try parsing the event body in the try catch block rather than the switch case
 const createProduct = async ( product ) => {
    console.log( 'Create product', product )
    try {
@@ -77,6 +80,24 @@ const createProduct = async ( product ) => {
          Item: marshall( product )
       }
       const response = await ddbClient.send( new PutItemCommand( params ) )
+      console.log( "Success", response.Item )
+      return unmarshall( response.Item )
+   } catch ( error ) {
+      console.log( error )
+      throw error
+   }
+}
+
+const deleteProduct = async ( productId ) => {
+   console.log( 'Delete product', productId )
+   try {
+      const params = {
+         TableName: process.env.DYNAMODB_TABLE_NAME,
+         Key: marshall( {
+            id: productId
+         } ),
+      }
+      const response = await ddbClient.send( new DeleteItemCommand( params ) )
       console.log( "Success", response.Item )
       return unmarshall( response.Item )
    } catch ( error ) {
