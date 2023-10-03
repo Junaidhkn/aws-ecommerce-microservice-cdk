@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
 
-const dynamodbClient = new DynamoDBClient();
-export { dynamodbClient };
+const ddbClient = new DynamoDBClient();
+export { ddbClient };

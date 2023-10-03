@@ -1,5 +1,6 @@
-import { GetItemCommand } from "@aws-sdk/client-dynamodb";
-import { marshall } from "@aws-sdk/util-dynamodb";
+import { GetItemCommand, ScanCommand } from "@aws-sdk/client-dynamodb";
+import { marshall, unmarshall } from "@aws-sdk/util-dynamodb";
+import { ddbClient } from "./DynamodbClient.js";
 
 
 exports.handler = async function ( event ) {
@@ -19,7 +20,7 @@ exports.handler = async function ( event ) {
 
    return {
       statusCode: 200,
-      headers: { "Content-Type": "text/plain" },
+      headers: { "Content-Type": "application/json" },
       body: `Hello from product ! You have got a hit at ${event.path}/n`
    }
 }
@@ -34,9 +35,9 @@ const getProduct = async ( productId ) => {
             id: productId
          } ),
       }
-      const data = await dynamodb.send( new GetItemCommand( params ) )
-      console.log( "Success", data.Item )
-      return { item }
+      const { Item } = await ddbClient.send( new GetItemCommand( params ) )
+      console.log( "Success", Item )
+      return ( Item ) ? unmarshall( Item ) : {}
    } catch ( error ) {
       console.log( error )
       throw error
@@ -45,5 +46,16 @@ const getProduct = async ( productId ) => {
 }
 
 const getAllProducts = async () => {
-
+   console.log( 'Get all products' )
+   try {
+      const params = {
+         TableName: process.env.DYNAMODB_TABLE_NAME,
+      };
+      const { Items } = await ddbClient.send( new ScanCommand( params ) );
+      console.log( Items )
+      return ( Items ) ? Items.map( ( item ) => unmarshall( item ) ) : {};
+   } catch ( error ) {
+      console.log( error )
+      throw error
+   }
 }
