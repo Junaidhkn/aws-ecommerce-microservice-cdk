@@ -22,6 +22,9 @@ exports.handler = async function ( event ) {
       case "DELETE":
          body = await deleteProduct( event.pathParameters.id );
          break;
+      case "PUT":
+         body = await updateProduct( event );
+         break;
       default:
          throw new Error( `Unsupported method "${event.httpMethod}"` );
    }
@@ -98,10 +101,18 @@ const deleteProduct = async ( productId ) => {
          } ),
       }
       const response = await ddbClient.send( new DeleteItemCommand( params ) )
-      console.log( "Success", response.Item )
-      return unmarshall( response.Item )
+      console.log( "Success", response )
+      return unmarshall( response )
    } catch ( error ) {
       console.log( error )
       throw error
+   }
+}
+
+const updateProduct = async ( event ) => {
+   try {
+
+   } catch ( error ) {
+
    }
 }
