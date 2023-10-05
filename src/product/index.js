@@ -110,6 +110,7 @@ const deleteProduct = async ( productId ) => {
 }
 
 const updateProduct = async ( event ) => {
+
    try {
 
    } catch ( error ) {
