@@ -110,10 +110,60 @@ const deleteProduct = async ( productId ) => {
 }
 
 const updateProduct = async ( event ) => {
-
+   console.log( `updateProduct function. event : "${event}"` );
    try {
+      const requestBody = JSON.parse( event.body );
+      const objKeys = Object.keys( requestBody );
+      console.log( `updateProduct function. requestBody : "${requestBody}", objKeys: "${objKeys}"` );
 
-   } catch ( error ) {
+      const params = {
+         TableName: process.env.DYNAMODB_TABLE_NAME,
+         Key: marshall( { id: event.pathParameters.id } ),
+         UpdateExpression: `SET ${objKeys.map( ( _, index ) => `#key${index} = :value${index}` ).join( ", " )}`,
+         ExpressionAttributeNames: objKeys.reduce( ( acc, key, index ) => ( {
+            ...acc,
+            [`#key${index}`]: key,
+         } ), {} ),
+         ExpressionAttributeValues: marshall( objKeys.reduce( ( acc, key, index ) => ( {
+            ...acc,
+            [`:value${index}`]: requestBody[key],
+         } ), {} ) ),
+      };
 
+      const updateResult = await ddbClient.send( new UpdateItemCommand( params ) );
+
+      console.log( updateResult );
+      return updateResult;
+   } catch ( e ) {
+      console.error( e );
+      throw e;
+   }
+
+}
+
+const getProductsByCategory = async ( event ) => {
+   console.log( "getProductsByCategory" );
+   try {
+      // GET product/1234?category=Phone
+      const productId = event.pathParameters.id;
+      const category = event.queryStringParameters.category;
+
+      const params = {
+         KeyConditionExpression: "id = :productId",
+         FilterExpression: "contains (category, :category)",
+         ExpressionAttributeValues: {
+            ":productId": { S: productId },
+            ":category": { S: category }
+         },
+         TableName: process.env.DYNAMODB_TABLE_NAME
+      };
+
+      const { Items } = await ddbClient.send( new QueryCommand( params ) );
+
+      console.log( Items );
+      return Items.map( ( item ) => unmarshall( item ) );
+   } catch ( e ) {
+      console.error( e );
+      throw e;
    }
 }
