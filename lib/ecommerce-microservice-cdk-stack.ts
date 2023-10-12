@@ -32,7 +32,7 @@ export class EcommerceMicroserviceCdkStack extends Stack {
 		};
 
 		const productFunction = new NodejsFunction(this, 'productLambdaFunction', {
-			entry: join(__dirname, '/../src/product/index.js'),
+			entry: join(__dirname, '../src/product/index.js'),
 			...nodeJsFunctionProps,
 		});
 
