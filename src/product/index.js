@@ -13,7 +13,7 @@ exports.handler = async function ( event ) {
          if ( event.queryStringParameters != null ) {
             body = await getProductsByCategory( event );
          }
-         if ( event.pathParameters != null ) {
+         else if ( event.pathParameters != null ) {
             body = await getProduct( event.pathParameters.id );
          } else {
             body = await getAllProducts();

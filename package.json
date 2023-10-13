@@ -1,7 +1,7 @@
 {
 	"name": "ecommerce-microservice-cdk",
 	"version": "0.1.0",
-	"type": "module",
+	"type": "commonjs",
 	"bin": {
 		"ecommerce-microservice-cdk": "bin/ecommerce-microservice-cdk.js"
 	},
