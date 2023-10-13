@@ -7,37 +7,50 @@ import { v4 as uuid } from 'uuid';
 exports.handler = async function ( event ) {
    console.log( 'request: ', JSON.stringify( event, undefined, 2 ) )
 
+   try {
+      switch ( event.httpMethod ) {
+         case "GET":
+            if ( event.queryStringParameters != null ) {
+               body = await getProductsByCategory( event );
+            }
+            else if ( event.pathParameters != null ) {
+               body = await getProduct( event.pathParameters.id );
+            } else {
+               body = await getAllProducts();
+            }
+         case "POST":
+            const product = JSON.parse( event.body );
+            body = await createProduct( product );
+            break;
+         case "DELETE":
+            body = await deleteProduct( event.pathParameters.id );
+            break;
+         case "PUT":
+            body = await updateProduct( event );
+            break;
+         default:
+            throw new Error( `Unsupported method "${event.httpMethod}"` );
+      }
 
-   switch ( event.httpMethod ) {
-      case "GET":
-         if ( event.queryStringParameters != null ) {
-            body = await getProductsByCategory( event );
-         }
-         else if ( event.pathParameters != null ) {
-            body = await getProduct( event.pathParameters.id );
-         } else {
-            body = await getAllProducts();
-         }
-      case "POST":
-         const product = JSON.parse( event.body );
-         body = await createProduct( product );
-         break;
-      case "DELETE":
-         body = await deleteProduct( event.pathParameters.id );
-         break;
-      case "PUT":
-         body = await updateProduct( event );
-         break;
-      default:
-         throw new Error( `Unsupported method "${event.httpMethod}"` );
-   }
+      return {
+         statusCode: 200,
+         headers: { "Content-Type": "application/json" },
+         body: JSON.stringify( {
+            message: `Successfully processed ${event.httpMethod} request`,
+            body: body
+         } )
+      }
 
-
-
-   return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: `Hello from product ! You have got a hit at ${event.path}/n`
+   } catch ( error ) {
+      console.log( error )
+      return {
+         statusCode: 500,
+         body: JSON.stringify( {
+            message: "Failed to Perform Operation",
+            errorMessenge: error.message,
+            errorStack: error.stack
+         } )
+      }
    }
 }
 
