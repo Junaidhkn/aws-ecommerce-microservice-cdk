@@ -10,6 +10,9 @@ exports.handler = async function ( event ) {
 
    switch ( event.httpMethod ) {
       case "GET":
+         if ( event.queryStringParameters != null ) {
+            body = await getProductsByCategory( event );
+         }
          if ( event.pathParameters != null ) {
             body = await getProduct( event.pathParameters.id );
          } else {
