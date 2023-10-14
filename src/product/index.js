@@ -18,6 +18,7 @@ exports.handler = async function ( event ) {
             } else {
                body = await getAllProducts();
             }
+            break;
          case "POST":
             const product = JSON.parse( event.body );
             body = await createProduct( product );
