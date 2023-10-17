@@ -8,17 +8,20 @@ import {
 } from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 import { join } from 'path';
+import { Database } from './database';
 
 export class EcommerceMicroserviceCdkStack extends Stack {
 	constructor(scope: Construct, id: string, props?: StackProps) {
 		super(scope, id, props);
 
-		const productTable = new TableV2(this, 'product', {
-			partitionKey: { name: 'id', type: AttributeType.STRING },
-			tableName: 'product',
-			removalPolicy: RemovalPolicy.DESTROY,
-			billing: Billing.onDemand(),
-		});
+		// const productTable = new TableV2(this, 'product', {
+		// 	partitionKey: { name: 'id', type: AttributeType.STRING },
+		// 	tableName: 'product',
+		// 	removalPolicy: RemovalPolicy.DESTROY,
+		// 	billing: Billing.onDemand(),
+		// });
+
+		const database = new Database(this, 'productDatabase');
 
 		const nodeJsFunctionProps: NodejsFunctionProps = {
 			bundling: {
@@ -26,7 +29,7 @@ export class EcommerceMicroserviceCdkStack extends Stack {
 			},
 			environment: {
 				PRIMARY_KEY: 'id',
-				DYNAMODB_TABLE_NAME: productTable.tableName,
+				DYNAMODB_TABLE_NAME: database.productTable.tableName,
 			},
 			runtime: Runtime.NODEJS_18_X,
 		};
@@ -36,7 +39,7 @@ export class EcommerceMicroserviceCdkStack extends Stack {
 			...nodeJsFunctionProps,
 		});
 
-		productTable.grantReadWriteData(productFunction);
+		database.productTable.grantReadWriteData(productFunction);
 
 		const apiGateWay = new LambdaRestApi(this, 'productAPI', {
 			restApiName: 'Product Service',
