@@ -3,30 +3,20 @@ import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Construct } from 'constructs';
 import { EcomDatabase } from './database';
 import { EcomMicroservices } from './microservice';
+import { EcomApiGateway } from './apigateway';
 
 export class EcommerceMicroserviceCdkStack extends Stack {
 	constructor(scope: Construct, id: string, props?: StackProps) {
 		super(scope, id, props);
 
 		const database = new EcomDatabase(this, 'ecommerceDatabase');
-		const microservice = new EcomMicroservices(this, 'ecommerceMicroservice', {
+
+		const microservices = new EcomMicroservices(this, 'ecommerceMicroservice', {
 			productTable: database.productTable,
 		});
 
-		const apiGateWay = new LambdaRestApi(this, 'productAPI', {
-			restApiName: 'Product Service',
-			handler: microservice.productMicroservice,
-			proxy: false,
+		const apiGateWay = new EcomApiGateway(this, 'ecommerceApiGateway', {
+			productMicroservice: microservices.productMicroservice,
 		});
-
-		const product = apiGateWay.root.addResource('product'); // /product
-		product.addMethod('GET');
-		product.addMethod('POST');
-
-		const singleProduct = product.addResource('{id}'); // /product/{id}
-
-		singleProduct.addMethod('GET');
-		singleProduct.addMethod('PUT');
-		singleProduct.addMethod('DELETE');
 	}
 }
