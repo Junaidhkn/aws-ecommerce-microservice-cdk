@@ -1,5 +1,4 @@
 import { Stack, StackProps } from 'aws-cdk-lib';
-import { LambdaRestApi } from 'aws-cdk-lib/aws-apigateway';
 import { Construct } from 'constructs';
 import { EcomDatabase } from './database';
 import { EcomMicroservices } from './microservice';
