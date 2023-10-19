@@ -2,8 +2,7 @@ import { RemovalPolicy } from 'aws-cdk-lib';
 import { AttributeType, Billing, TableV2 } from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 
-export class Database extends Construct {
-   
+export class EcomDatabase extends Construct {
 	public readonly productTable: TableV2;
 
 	constructor(scope: Construct, id: string) {
