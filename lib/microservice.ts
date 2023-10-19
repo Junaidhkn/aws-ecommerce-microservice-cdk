@@ -19,6 +19,7 @@ export class EcomMicroservices extends Construct {
 
 		const nodeJsFunctionProps: NodejsFunctionProps = {
 			bundling: {
+				// Generally @aws-sdk is for node version before node 16
 				externalModules: ['aws-sdk'],
 			},
 			environment: {
