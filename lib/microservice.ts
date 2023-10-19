@@ -12,6 +12,8 @@ interface EcomMicroservicesProps {
 }
 
 export class EcomMicroservices extends Construct {
+	public readonly productMicroservice: NodejsFunction;
+
 	constructor(scope: Construct, id: string, props: EcomMicroservicesProps) {
 		super(scope, id);
 
@@ -31,6 +33,7 @@ export class EcomMicroservices extends Construct {
 			...nodeJsFunctionProps,
 		});
 
+		this.productMicroservice = productFunction;
 		props.productTable.grantReadWriteData(productFunction);
 	}
 }

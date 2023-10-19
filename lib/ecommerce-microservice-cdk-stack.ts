@@ -15,7 +15,7 @@ export class EcommerceMicroserviceCdkStack extends Stack {
 
 		const apiGateWay = new LambdaRestApi(this, 'productAPI', {
 			restApiName: 'Product Service',
-			handler: productFunction,
+			handler: microservice.productMicroservice,
 			proxy: false,
 		});
 
