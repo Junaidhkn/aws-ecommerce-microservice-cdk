@@ -10,6 +10,10 @@ interface EcomApiGatewayProps {
 export class EcomApiGateway extends Construct {
 	constructor(scope: Construct, id: string, props: EcomApiGatewayProps) {
 		super(scope, id);
+
+		this.createProductApi(props.productMicroservice);
+		this.createBasketApi(props.basketMicroservice);
+
 		const apiGateWay = new LambdaRestApi(this, 'productAPI', {
 			restApiName: 'Product Service',
 			handler: props.productMicroservice,
@@ -25,5 +29,45 @@ export class EcomApiGateway extends Construct {
 		singleProduct.addMethod('GET');
 		singleProduct.addMethod('PUT');
 		singleProduct.addMethod('DELETE');
+	}
+
+	private createProductApi(productMicroservice: NodejsFunction): LambdaRestApi {
+		const apiGateWay = new LambdaRestApi(this, 'productAPI', {
+			restApiName: 'Product Service',
+			handler: productMicroservice,
+			proxy: false,
+		});
+
+		const product = apiGateWay.root.addResource('product'); // /product
+		product.addMethod('GET');
+		product.addMethod('POST');
+
+		const singleProduct = product.addResource('{id}'); // /product/{id}
+
+		singleProduct.addMethod('GET');
+		singleProduct.addMethod('PUT');
+		singleProduct.addMethod('DELETE');
+
+		return apiGateWay;
+	}
+
+	private createBasketApi(basketMicroservice: NodejsFunction): LambdaRestApi {
+		const apiGateWay = new LambdaRestApi(this, 'basketAPI', {
+			restApiName: 'Basket Service',
+			handler: basketMicroservice,
+			proxy: false,
+		});
+
+		const basket = apiGateWay.root.addResource('basket'); // /basket
+		basket.addMethod('GET');
+		basket.addMethod('POST');
+
+		const singleBasket = basket.addResource('{id}'); // /basket/{id}
+
+		singleBasket.addMethod('GET');
+		singleBasket.addMethod('PUT');
+		singleBasket.addMethod('DELETE');
+
+		return apiGateWay;
 	}
 }

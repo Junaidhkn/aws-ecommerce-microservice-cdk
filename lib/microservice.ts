@@ -54,7 +54,7 @@ export class EcomMicroservices extends Construct {
 				externalModules: ['aws-sdk'],
 			},
 			environment: {
-				PRIMARY_KEY: 'id',
+				PRIMARY_KEY: 'userName',
 				DYNAMODB_TABLE_NAME: basketTable.tableName,
 			},
 			runtime: Runtime.NODEJS_18_X,
