@@ -9,15 +9,20 @@ export class EcomDatabase extends Construct {
 	constructor(scope: Construct, id: string) {
 		super(scope, id);
 
+		this.productTable = this.createProductTable();
+		this.basketTable = this.createBasketTable();
+	}
+	private createProductTable(): TableV2 {
 		const productTable = new TableV2(this, 'product', {
 			partitionKey: { name: 'id', type: AttributeType.STRING },
 			tableName: 'product',
 			removalPolicy: RemovalPolicy.DESTROY,
 			billing: Billing.onDemand(),
 		});
+		return productTable;
+	}
 
-		this.productTable = productTable;
-
+	private createBasketTable(): TableV2 {
 		// Basket DynamoDb Table Creation
 		// Basket : PK: username --items (SET-MAP Object)
 		// Item1 : { quantity - color - price - productID - productName}
@@ -30,6 +35,6 @@ export class EcomDatabase extends Construct {
 			billing: Billing.onDemand(),
 		});
 
-		this.basketTable = basketTable;
+		return basketTable;
 	}
 }

@@ -4,6 +4,7 @@ import { Construct } from 'constructs';
 
 interface EcomApiGatewayProps {
 	productMicroservice: NodejsFunction;
+	basketMicroservice: NodejsFunction;
 }
 
 export class EcomApiGateway extends Construct {
