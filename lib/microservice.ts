@@ -60,7 +60,7 @@ export class EcomMicroservices extends Construct {
 			runtime: Runtime.NODEJS_18_X,
 		};
 
-		const basketFunction = new NodejsFunction(this, 'productLambdaFunction', {
+		const basketFunction = new NodejsFunction(this, 'basketLambdaFunction', {
 			entry: join(__dirname, '../src/product/index.js'),
 			...nodeJsFunctionProps,
 		});
