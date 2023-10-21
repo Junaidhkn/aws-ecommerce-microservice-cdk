@@ -31,7 +31,7 @@ export class EcomApiGateway extends Construct {
 		singleProduct.addMethod('DELETE');
 	}
 
-	private createProductApi(productMicroservice: NodejsFunction): LambdaRestApi {
+	private createProductApi(productMicroservice: NodejsFunction) {
 		const apiGateWay = new LambdaRestApi(this, 'productAPI', {
 			restApiName: 'Product Service',
 			handler: productMicroservice,
@@ -47,11 +47,9 @@ export class EcomApiGateway extends Construct {
 		singleProduct.addMethod('GET');
 		singleProduct.addMethod('PUT');
 		singleProduct.addMethod('DELETE');
-
-		return apiGateWay;
 	}
 
-	private createBasketApi(basketMicroservice: NodejsFunction): LambdaRestApi {
+	private createBasketApi(basketMicroservice: NodejsFunction) {
 		const apiGateWay = new LambdaRestApi(this, 'basketAPI', {
 			restApiName: 'Basket Service',
 			handler: basketMicroservice,
@@ -62,12 +60,13 @@ export class EcomApiGateway extends Construct {
 		basket.addMethod('GET');
 		basket.addMethod('POST');
 
-		const singleBasket = basket.addResource('{id}'); // /basket/{id}
+		const singleBasket = basket.addResource('{userName}'); // /basket/{userName}
 
 		singleBasket.addMethod('GET');
 		singleBasket.addMethod('PUT');
 		singleBasket.addMethod('DELETE');
 
-		return apiGateWay;
+		const basketCheckout = basket.addResource('checkout'); // /basket/checkout
+		basketCheckout.addMethod('POST');
 	}
 }
