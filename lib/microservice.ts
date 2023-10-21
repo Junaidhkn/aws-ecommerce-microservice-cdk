@@ -9,6 +9,7 @@ import { TableV2 } from 'aws-cdk-lib/aws-dynamodb';
 
 interface EcomMicroservicesProps {
 	productTable: TableV2;
+	basketTable: TableV2;
 }
 
 export class EcomMicroservices extends Construct {
