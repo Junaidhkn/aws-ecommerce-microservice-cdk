@@ -7,7 +7,9 @@ import { v4 as uuid } from 'uuid';
 exports.handler = async function ( event ) {
    console.log( 'request: ', JSON.stringify( event, undefined, 2 ) )
 
+
    try {
+      let body;
       switch ( event.httpMethod ) {
          case "GET":
             if ( event.queryStringParameters != null ) {
