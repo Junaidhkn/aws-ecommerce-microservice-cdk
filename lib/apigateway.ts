@@ -13,22 +13,6 @@ export class EcomApiGateway extends Construct {
 
 		this.createProductApi(props.productMicroservice);
 		this.createBasketApi(props.basketMicroservice);
-
-		const apiGateWay = new LambdaRestApi(this, 'productAPI', {
-			restApiName: 'Product Service',
-			handler: props.productMicroservice,
-			proxy: false,
-		});
-
-		const product = apiGateWay.root.addResource('product'); // /product
-		product.addMethod('GET');
-		product.addMethod('POST');
-
-		const singleProduct = product.addResource('{id}'); // /product/{id}
-
-		singleProduct.addMethod('GET');
-		singleProduct.addMethod('PUT');
-		singleProduct.addMethod('DELETE');
 	}
 
 	private createProductApi(productMicroservice: NodejsFunction) {
