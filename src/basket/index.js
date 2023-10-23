@@ -13,23 +13,21 @@ exports.handler = async function ( event ) {
       switch ( event.httpMethod ) {
          case "GET":
             if ( event.queryStringParameters != null ) {
-               body = await getBasketsByCategory( event );
-            }
-            else if ( event.pathParameters != null ) {
-               body = await getBasket( event.pathParameters.id );
+               body = await getBasket( event.pathParameters.userName );
             } else {
                body = await getAllBaskets();
             }
             break;
          case "POST":
-            const Basket = JSON.parse( event.body );
-            body = await createBasket( Basket );
+            if ( event.path === '/basket/checkout' ) {
+               body = await checkoutBasket( event )
+            } else {
+               const basket = JSON.parse( event.body );
+               body = await createBasket( basket );
+            }
             break;
          case "DELETE":
-            body = await deleteBasket( event.pathParameters.id );
-            break;
-         case "PUT":
-            body = await updateBasket( event );
+            body = await deleteBasket( event.pathParameters.userName );
             break;
          default:
             throw new Error( `Unsupported method "${event.httpMethod}"` );
@@ -128,61 +126,14 @@ const deleteBasket = async ( BasketId ) => {
    }
 }
 
-const updateBasket = async ( event ) => {
-   console.log( `updateBasket function. event : "${event}"` );
+
+const checkoutBasket = async ( event ) => {
+   console.log( 'checkoutBasket', event )
    try {
-      const requestBody = JSON.parse( event.body );
-      const objKeys = Object.keys( requestBody );
-      console.log( `updateBasket function. requestBody : "${requestBody}", objKeys: "${objKeys}"` );
 
-      const params = {
-         TableName: process.env.DYNAMODB_TABLE_NAME,
-         Key: marshall( { id: event.pathParameters.id } ),
-         UpdateExpression: `SET ${objKeys.map( ( _, index ) => `#key${index} = :value${index}` ).join( ", " )}`,
-         ExpressionAttributeNames: objKeys.reduce( ( acc, key, index ) => ( {
-            ...acc,
-            [`#key${index}`]: key,
-         } ), {} ),
-         ExpressionAttributeValues: marshall( objKeys.reduce( ( acc, key, index ) => ( {
-            ...acc,
-            [`:value${index}`]: requestBody[key],
-         } ), {} ) ),
-      };
-
-      const updateResult = await ddbClient.send( new UpdateItemCommand( params ) );
-
-      console.log( updateResult );
-      return updateResult;
-   } catch ( e ) {
-      console.error( e );
-      throw e;
-   }
-
-}
-
-const getBasketsByCategory = async ( event ) => {
-   console.log( "getBasketsByCategory" );
-   try {
-      // GET Basket/1234?category=Phone
-      const BasketId = event.pathParameters.id;
-      const category = event.queryStringParameters.category;
-
-      const params = {
-         KeyConditionExpression: "id = :BasketId",
-         FilterExpression: "contains (category, :category)",
-         ExpressionAttributeValues: {
-            ":BasketId": { S: BasketId },
-            ":category": { S: category }
-         },
-         TableName: process.env.DYNAMODB_TABLE_NAME
-      };
-
-      const { Items } = await ddbClient.send( new QueryCommand( params ) );
-
-      console.log( Items );
-      return Items.map( ( item ) => unmarshall( item ) );
-   } catch ( e ) {
-      console.error( e );
-      throw e;
+   } catch ( error ) {
+      console.log( error )
+      throw error
    }
 }
+
